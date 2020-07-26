@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WebApiRuleta.AccesoDatos;
 using WebApiRuleta.Entidades;
 
 namespace WebApiRuleta.Models
@@ -15,32 +16,31 @@ namespace WebApiRuleta.Models
         public IEnumerable<Ruleta> ObtenerRuletas()
         {
             return lstRuletas;
-        }
-        public Ruleta ObtenerRuleta(string id)
-        {
-            return lstRuletas.Where(x => x.Id == id).FirstOrDefault();
-        }
-        public bool IniciarApuestas(string id)
-        {
-            Ruleta objRuleta = lstRuletas.Where(x => x.Id == id).FirstOrDefault();
-            objRuleta.Estado = Estado.abierto;
-            return true;
-        }
-        public List<Apuesta> CerrarApuestas(string id)
+        }        
+        public List<Apuesta> CerrarApuestas(int id)
         {
             Ruleta objRuleta = lstRuletas.Where(x => x.Id == id).FirstOrDefault();
             objRuleta.Estado = Estado.cerrado;
             return objRuleta.LstApuestas;
         }
-        public string CrearRuleta()
+        public int CrearRuleta()
         {
-            Ruleta objRuleta = new Ruleta();
-
-            lstRuletas.Add(objRuleta);
-
-            return objRuleta.Id;
+            DLRuleta dlRuleta = new DLRuleta();
+            return dlRuleta.CrearRuleta(new Ruleta());
         }
-        public void CrearApuesta(string id, Apuesta objApuesta)
+        public bool IniciarApuestas(int id)
+        {
+            Ruleta objRuleta = lstRuletas.Where(x => x.Id == id).FirstOrDefault();
+            objRuleta.Estado = Estado.abierto;
+            return true;
+        }
+        public Ruleta ConsultarRuleta(int id)
+        {
+            DLRuleta dlRuleta = new DLRuleta();
+
+            return lstRuletas.Where(x => x.Id == id).FirstOrDefault();
+        }
+        public void CrearApuesta(int id, Apuesta objApuesta)
         {
             Ruleta objRuleta = lstRuletas.Where(x => x.Id == id).FirstOrDefault();
             objRuleta.LstApuestas.Add(objApuesta);
