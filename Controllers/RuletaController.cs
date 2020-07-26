@@ -1,25 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using WebApiRuleta.Entidades;
-using WebApiRuleta.Models;
+using WebApiRuleta.Negocio;
 
 namespace WebApiRuleta.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class RuletaController : ControllerBase
-    {
+    {        
         [HttpGet]
         public IActionResult Get()
-        {
-            Repositorio objRepositorio = new Repositorio();
-            return Ok(objRepositorio.ObtenerRuletas());
+        {            
+            return Ok(new BLRuleta().ObtenerRuletas());
         }
         [HttpGet("{id}")]
-        public IActionResult Get(string id)
-        {
-            Repositorio objRepositorio = new Repositorio();
-            Ruleta objRuleta = objRepositorio.ObtenerRuleta(id);
+        public IActionResult Get(int id)
+        {            
+            Ruleta objRuleta = new BLRuleta().ObtenerRuletaID(id);
             if (objRuleta == null)            
                 return NotFound("La Ruleta " + id.ToString() + " no existe.");            
 
@@ -27,50 +24,31 @@ namespace WebApiRuleta.Controllers
         }
         [HttpPost("agregarRuleta")]
         public IActionResult AgregarRuleta()
-        { 
-            Repositorio objRepositorio = new Repositorio();
-            string id = objRepositorio.CrearRuleta();
-
-            return CreatedAtAction(nameof(AgregarRuleta), id);
+        {
+            return CreatedAtAction(nameof(AgregarRuleta), new BLRuleta().CrearRuleta());
         }
         [HttpPost("agregarApuesta")]
-        public IActionResult AgregarApuesta(string id , Apuesta objApuesta)
+        public IActionResult AgregarApuesta(Apuesta objApuesta)
         {
-            Repositorio objRepositorio = new Repositorio();
-            Ruleta objRuleta = objRepositorio.ObtenerRuleta(id);
-            if(objRuleta == null)
-                return NotFound("La Ruleta " + id.ToString() + " no existe.");
-            if(objRuleta.Estado == Estado.cerrado)
-                return NotFound("La Ruleta " + id.ToString() + " esta cerrada.");
-            objRepositorio.CrearApuesta(id:id, objApuesta:objApuesta);
+            bool rta = new BLRuleta().CrearApuesta(objApuesta);            
+            if(!rta)
+                return NotFound("La Ruleta " + objApuesta.IdRuleta.ToString() + " no esta Abierta.");
 
             return Ok();
         }
         [HttpPost("iniciarRuleta")]
-        public IActionResult InicarRuleta(string id)
+        public IActionResult InicarRuleta(int id)
         {
-            Repositorio objRepositorio = new Repositorio();
-            Ruleta objRuleta = objRepositorio.ObtenerRuleta(id);
-            if (objRuleta == null)
+            bool rta = new BLRuleta().IniciarRuleta(id);
+            if (!rta)
                 return NotFound("La Ruleta " + id.ToString() + " no existe.");
-            if (objRuleta.Estado == Estado.abierto)
-                return NotFound("La Ruleta " + id.ToString() + " ya está abierta.");
-            objRepositorio.IniciarApuestas(id);
 
             return Ok();
         }
         [HttpPost("cerrarApuestas")]
-        public IActionResult CerrarRuleta(string id)
-        {
-            Repositorio objRepositorio = new Repositorio();
-            Ruleta objRuleta = objRepositorio.ObtenerRuleta(id);
-            if (objRuleta == null)
-                return NotFound("La Ruleta " + id.ToString() + " no existe.");
-            if (objRuleta.Estado == Estado.cerrado)
-                return NotFound("La Ruleta " + id.ToString() + " ya esta cerrada.");
-            List<Apuesta> lstApuestas = objRepositorio.CerrarApuestas(id);
-
-            return CreatedAtAction(nameof(CerrarRuleta), lstApuestas);            
+        public IActionResult CerrarRuleta(int id)
+        {            
+            return CreatedAtAction(nameof(CerrarRuleta), new BLRuleta().CerrarRuleta(id));            
         }
     }
 }
