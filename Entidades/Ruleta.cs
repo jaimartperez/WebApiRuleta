@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static WebApiRuleta.Entidades.Enumerables;
 
 namespace WebApiRuleta.Entidades
 {
